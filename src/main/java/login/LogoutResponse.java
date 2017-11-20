@@ -1,7 +1,7 @@
 package login;
 
 /**
- * Created by Meltzer on 21-Nov-17.
+ * Created by Evgeniy Slobozheniuk on 21-Nov-17.
  */
 public class LogoutResponse {
     String token;

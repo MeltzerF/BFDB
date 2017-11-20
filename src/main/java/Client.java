@@ -54,13 +54,23 @@ public class Client {
     }
 
     public void login() {
-        log.info("Starting authentication...");
+        log.info("Starting login...");
         try (CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(
                 setupSSLContext(
                         getKeyManagers()
                 )
         ).build()){
-            HttpResponse response = httpClient.execute(getHttpPost());
+            HttpPost httpPost = new HttpPost(this.httpPostURL + this.loginEndpoint);
+
+            List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+            nvps.add(new BasicNameValuePair("username", this.username));
+            nvps.add(new BasicNameValuePair("password", this.password));
+            httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+
+            httpPost.setHeader("X-Application", this.applicationKey);
+            httpPost.setHeader("Accept", "application/json");
+
+            HttpResponse response = httpClient.execute(httpPost);
 
             String responseString = null;
             HttpEntity entity = response.getEntity();
@@ -100,7 +110,7 @@ public class Client {
 
     public void logout() {
         if (!sessionToken.isEmpty()) {
-            log.info("Starting authentication...");
+            log.info("Logging out...");
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
                 HttpPost httpPost = new HttpPost(this.httpPostURL + this.logoutEndpoint);
                 httpPost.setHeader("X-Application", this.applicationKey);
@@ -149,16 +159,5 @@ public class Client {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(clientStore, this.certificateKey.toCharArray());
         return kmf.getKeyManagers();
-    }
-
-    private HttpPost getHttpPost() throws UnsupportedEncodingException {
-        HttpPost httpPost = new HttpPost(this.httpPostURL + this.loginEndpoint);
-        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-        nvps.add(new BasicNameValuePair("username", this.username));
-        nvps.add(new BasicNameValuePair("password", this.password));
-
-        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-        httpPost.setHeader("X-Application", this.applicationKey);
-        return httpPost;
     }
 }

@@ -16,6 +16,6 @@ public class AppInstance {
         File keyFile = new File(AppInstance.class.getResource(config.getCertificateFile()).getPath());
         Client client = new Client(config, keyFile);
         client.login();
-
+        client.logout();
     }
 }
