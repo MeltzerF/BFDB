@@ -12,7 +12,7 @@ import java.util.TimeZone;
 /**
  * Created by Evgeniy Slobozheniuk on 20.11.17.
  */
-public class ISO8601DateTypeAdapter {
+public class ISO8601DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date>{
     public static final String ISO_8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public static final String ISO_8601_TIMEZONE = "UTC";
 

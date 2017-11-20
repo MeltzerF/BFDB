@@ -18,6 +18,13 @@ public class AppConfig {
     String certificateFile;
     String certificateKey;
     String httpPostURL;
+    String jsonHeader;
+    String apiEndpoint;
+    String jsonKeepAlive;
+    String encoding;
+    long timeout;
+    String apiNgUrl;
+    String jsonSuffix;
 
     public AppConfig(String filePath) {
         Configurations configs = new Configurations();
@@ -31,6 +38,13 @@ public class AppConfig {
             this.certificateFile = config.getString("app.certificate");
             this.certificateKey = config.getString("app.certificateKey");
             this.httpPostURL = config.getString("app.httpPostURL");
+            this.jsonHeader = config.getString("app.jsonHeader");
+            this.apiEndpoint = config.getString("app.apiEndpoint");
+            this.jsonKeepAlive = config.getString("app.jsonKeepAlive");
+            this.encoding = config.getString("app.encoding");
+            this.timeout = config.getLong("app.timeout");
+            this.apiNgUrl = config.getString("app.apiNgURL");
+            this.jsonSuffix = config.getString("app.jsonSuffix");
 
             log.info("Config is loaded");
         } catch (ConfigurationException e) {
@@ -60,5 +74,33 @@ public class AppConfig {
 
     public String getHttpPostURL() {
         return httpPostURL;
+    }
+
+    public String getJsonHeader() {
+        return jsonHeader;
+    }
+
+    public String getApiEndpoint() {
+        return apiEndpoint;
+    }
+
+    public String getJsonKeepAlive() {
+        return jsonKeepAlive;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public long getTimeout() {
+        return timeout;
+    }
+
+    public String getApiNgUrl() {
+        return apiNgUrl;
+    }
+
+    public String getJsonSuffix() {
+        return jsonSuffix;
     }
 }

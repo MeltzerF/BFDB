@@ -1,3 +1,5 @@
+package utils;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import login.LoginResponse;
@@ -15,7 +17,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import utils.AppConfig;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -26,6 +27,7 @@ import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Evgeniy Slobozheniuk on 20.11.17.
@@ -35,32 +37,35 @@ public class Client {
 
     private final String loginEndpoint = "/api/certlogin";
     private final String logoutEndpoint = "/api/logout";
-    private final String certificateKey;
-    private final String username;
-    private final String password;
-    private final String applicationKey;
-    private final String httpPostURL;
+    private final AppConfig config;
     private final File certificateFile;
 
+    private int requestID;
     private String sessionToken;
 
     public Client(AppConfig config, File keyFile) {
         this.certificateFile = keyFile;
-        this.certificateKey = config.getCertificateKey();
-        this.username = config.getUsername();
-        this.password = config.getPassword();
-        this.applicationKey = config.getApplicationKey();
-        this.httpPostURL = config.getHttpPostURL();
+        this.config = config;
     }
 
     public void login() {
-        log.info("Starting authentication...");
+        log.info("Starting login...");
         try (CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(
                 setupSSLContext(
                         getKeyManagers()
                 )
         ).build()){
-            HttpResponse response = httpClient.execute(getHttpPost());
+            HttpPost httpPost = new HttpPost(this.config.httpPostURL + this.loginEndpoint);
+
+            List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+            nvps.add(new BasicNameValuePair("username", this.config.username));
+            nvps.add(new BasicNameValuePair("password", this.config.password));
+            httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+
+            httpPost.setHeader("X-Application", this.config.applicationKey);
+            httpPost.setHeader("Accept", this.config.jsonHeader);
+
+            HttpResponse response = httpClient.execute(httpPost);
 
             String responseString = null;
             HttpEntity entity = response.getEntity();
@@ -99,13 +104,13 @@ public class Client {
     }
 
     public void logout() {
-        if (!sessionToken.isEmpty()) {
-            log.info("Starting authentication...");
+        if (sessionToken != null) {
+            log.info("Logging out...");
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-                HttpPost httpPost = new HttpPost(this.httpPostURL + this.logoutEndpoint);
-                httpPost.setHeader("X-Application", this.applicationKey);
+                HttpPost httpPost = new HttpPost(this.config.httpPostURL + this.logoutEndpoint);
+                httpPost.setHeader("X-Application", this.config.applicationKey);
                 httpPost.setHeader("X-Authentication", this.sessionToken);
-                httpPost.setHeader("Accept", "application/json");
+                httpPost.setHeader("Accept", this.config.jsonHeader);
 
                 HttpResponse response = httpClient.execute(httpPost);
 
@@ -125,7 +130,29 @@ public class Client {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            log.info("Client is not logged in!");
         }
+    }
+
+    public String execute(String operationName, Map<String, Object> params) {
+        String requestString;
+        //Handling the JSON-RPC
+        JsonrpcRequest jsonRequest = new JsonrpcRequest();
+        jsonRequest.setId(getRequestID());
+        jsonRequest.setMethod(this.config.apiEndpoint + operationName);
+        jsonRequest.setParams(params);
+
+        requestString = JsonConverter.convertToJson(jsonRequest);
+        log.info(requestString);
+        HttpRequest request = new HttpRequest(config);
+        return request.sendPostRequestJsonRpc(requestString, operationName, this.sessionToken);
+    }
+
+    private String getRequestID() {
+        String currentID = String.valueOf(requestID);
+        requestID++;
+        return currentID;
     }
 
     private SSLConnectionSocketFactory setupSSLContext(KeyManager[] kms) throws NoSuchAlgorithmException, KeyManagementException {
@@ -144,21 +171,10 @@ public class Client {
         log.info("Key file path: " + this.certificateFile.getPath());
         KeyStore clientStore = KeyStore.getInstance("PKCS12");
         keyStream = new FileInputStream(this.certificateFile);
-        clientStore.load(keyStream, this.certificateKey.toCharArray());
+        clientStore.load(keyStream, this.config.certificateKey.toCharArray());
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(clientStore, this.certificateKey.toCharArray());
+        kmf.init(clientStore, this.config.certificateKey.toCharArray());
         return kmf.getKeyManagers();
-    }
-
-    private HttpPost getHttpPost() throws UnsupportedEncodingException {
-        HttpPost httpPost = new HttpPost(this.httpPostURL + this.loginEndpoint);
-        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-        nvps.add(new BasicNameValuePair("username", this.username));
-        nvps.add(new BasicNameValuePair("password", this.password));
-
-        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-        httpPost.setHeader("X-Application", this.applicationKey);
-        return httpPost;
     }
 }

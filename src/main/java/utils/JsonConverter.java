@@ -1,7 +1,6 @@
 package utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -20,6 +19,10 @@ public class JsonConverter {
     public static <T> T convertFromJson(String toConvert, Type typeOfT) {
         return gson.fromJson(toConvert, typeOfT);
     }
+
+    public static JsonObject convertFromJson(String toConvert) { return gson.fromJson(toConvert, JsonObject.class); }
+
+    public static <T> T convertFromJson(JsonElement element, Type typeOfT) { return gson.fromJson(element, typeOfT); }
 
     public static String convertToJson(Object toConvert){
         return gson.toJson(toConvert);
