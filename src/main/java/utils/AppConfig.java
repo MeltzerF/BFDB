@@ -25,6 +25,9 @@ public class AppConfig {
     long timeout;
     String apiNgUrl;
     String jsonSuffix;
+    String dbConnectionString;
+    String dbUser;
+    String dbPassword;
 
     public AppConfig(String filePath) {
         Configurations configs = new Configurations();
@@ -45,6 +48,9 @@ public class AppConfig {
             this.timeout = config.getLong("app.timeout");
             this.apiNgUrl = config.getString("app.apiNgURL");
             this.jsonSuffix = config.getString("app.jsonSuffix");
+            this.dbConnectionString = config.getString("db.connectionString");
+            this.dbUser = config.getString("db.user");
+            this.dbPassword = config.getString("db.password");
 
             log.info("Config is loaded");
         } catch (ConfigurationException e) {
@@ -64,7 +70,7 @@ public class AppConfig {
         return applicationKey;
     }
 
-    public String getCertificateFile() {
+    public String getCertificbateFile() {
         return certificateFile;
     }
 

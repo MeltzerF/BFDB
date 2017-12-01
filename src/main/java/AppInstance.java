@@ -7,6 +7,7 @@ import requests.EventRequest;
 import requests.EventTypeRequest;
 import utils.AppConfig;
 import utils.Client;
+import utils.SQLiteConnection;
 
 import javax.swing.text.MaskFormatter;
 import java.io.File;
@@ -23,24 +24,11 @@ public class AppInstance {
     public static void main(String[] args) {
         log.info("Starting app...");
         AppConfig config = new AppConfig("config.properties");
-        File keyFile = new File(AppInstance.class.getResource(config.getCertificateFile()).getPath());
+        File keyFile = new File(AppInstance.class.getResource(config.getCertificbateFile()).getPath());
         Client client = new Client(config, keyFile);
+        SQLiteConnection connection = SQLiteConnection.getInstance(config);
         client.login();
-        MarketFilter filter = new MarketFilter();
-        EventTypeRequest etr = new EventTypeRequest(filter, client);
-        List<EventType> list= etr.getObjects();
-        for (EventType eventType : list) {
-            log.info(eventType.toString());
-        }
-        Set<String> set = new HashSet<>();
-        set.add("1");
-        filter.setEventTypeIds(set);
-        EventRequest er = new EventRequest(filter, client);
-        List<Event> eventlist = er.getObjects();
-        for (Event event : eventlist) {
-            log.info(event.toString());
-        }
-        client.logout();
 
+        client.logout();
     }
 }
