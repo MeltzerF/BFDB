@@ -23,7 +23,7 @@ public class SQLiteConnection {
             this.comboPooledDataSource.setDriverClass("com.mysql.jdbc.Driver");
             this.comboPooledDataSource.setJdbcUrl(config.dbConnectionString);
             this.comboPooledDataSource.setUser(config.dbUser);
-            this.comboPooledDataSource.setPassword(config.password);
+            this.comboPooledDataSource.setPassword("");
         } catch (PropertyVetoException e) {
             e.printStackTrace();
         }
