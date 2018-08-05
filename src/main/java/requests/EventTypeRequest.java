@@ -26,26 +26,27 @@ public class EventTypeRequest {
     private static final Logger log = LogManager.getLogger(EventTypeRequest.class);
 
     private Client client;
-    private Map<String, Object> params;
 
-    public EventTypeRequest(final MarketFilter filter, final Client client) {
-        this.params = new HashMap<String, Object>() {{
-            put("filter", filter);
-        }};
+    public EventTypeRequest(final Client client) {
         this.client = client;
     }
 
-    public List<EventType> getObjects() {
+    //TODO: Refactor method to look like List<T> parseObjects(String json)
+    //TODO: Why pass filter in the method when it can be passed in constructor and called from method
+    public List<EventType> getObjects(final MarketFilter filter) {
+        Map<String, Object> params = new HashMap<String, Object>() {{
+            put("filter", filter);
+        }};
         List<EventType> eventTypeList = new ArrayList<>();
         //Using the 'get()' method extract 'result' array and parse it as a JsonArray
-        JsonElement jsonElement = JsonConverter.convertFromJson(getJSONString()).get("result");
+        JsonElement jsonElement = JsonConverter.convertFromJson(getJSONString(params)).get("result");
         for (JsonElement element : jsonElement.getAsJsonArray()) {
             eventTypeList.add(JsonConverter.convertFromJson(JsonConverter.convertFromJson(element.toString()).get("eventType").toString(), EventType.class));
         }
         return eventTypeList;
     }
 
-    public String getJSONString() {
+    public String getJSONString(final Map<String, Object> params) {
         String result = client.execute(ApiNgOperation.LISTEVENTTYPES.getOperationName(), params);
         return result;
     }

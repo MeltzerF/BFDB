@@ -144,7 +144,7 @@ public class Client {
         jsonRequest.setParams(params);
 
         requestString = JsonConverter.convertToJson(jsonRequest);
-        log.info(requestString);
+        log.debug(requestString);
         HttpRequest request = new HttpRequest(config);
         return request.sendPostRequestJsonRpc(requestString, operationName, this.sessionToken);
     }
@@ -168,7 +168,7 @@ public class Client {
 
     private KeyManager[] getKeyManagers() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, URISyntaxException {
         FileInputStream keyStream;
-        log.info("Key file path: " + this.certificateFile.getPath());
+        log.debug("Key file path: " + this.certificateFile.getPath());
         KeyStore clientStore = KeyStore.getInstance("PKCS12");
         keyStream = new FileInputStream(this.certificateFile);
         clientStore.load(keyStream, this.config.certificateKey.toCharArray());

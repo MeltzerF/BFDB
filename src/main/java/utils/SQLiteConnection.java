@@ -24,6 +24,7 @@ public class SQLiteConnection {
             this.comboPooledDataSource.setJdbcUrl(config.dbConnectionString);
             this.comboPooledDataSource.setUser(config.dbUser);
             this.comboPooledDataSource.setPassword("");
+            this.comboPooledDataSource.setMaxPoolSize(10);
         } catch (PropertyVetoException e) {
             e.printStackTrace();
         }

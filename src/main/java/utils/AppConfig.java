@@ -26,6 +26,7 @@ public class AppConfig {
     String apiNgUrl;
     String jsonSuffix;
     String dbConnectionString;
+    String testDBConnectionString;
     String dbUser;
     String dbPassword;
 
@@ -49,6 +50,7 @@ public class AppConfig {
             this.apiNgUrl = config.getString("app.apiNgURL");
             this.jsonSuffix = config.getString("app.jsonSuffix");
             this.dbConnectionString = config.getString("db.connectionString");
+            this.testDBConnectionString = config.getString("testdb.connectionString");
             this.dbUser = config.getString("db.user");
             this.dbPassword = config.getString("db.password");
 
@@ -70,7 +72,7 @@ public class AppConfig {
         return applicationKey;
     }
 
-    public String getCertificbateFile() {
+    public String getCertificateFile() {
         return certificateFile;
     }
 
